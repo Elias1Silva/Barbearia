@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormatInputPathObject } from 'path';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,19 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'barbearia';
+  logado: boolean = true;
+  form: FormGroup;
+
+  constructor(public fb: FormBuilder){
+  this.form = this.fb.group({
+    data: [''],
+    cliente: [''],
+    contato: [''],
+    servico: [''],
+  });
+  }
+
+  verificarSenha(event: any){
+    this.logado = event .target.value == '123'; 
+  }
 }

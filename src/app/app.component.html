@@ -17,8 +17,9 @@
 <div class="container-fluid" *ngIf="logado">
  <div class="row d-flex justify-content-center">
    <div class="col-md-6 bg-light">
-     <form [formGroup]="form">
+     <form [formGroup]="form" (ngSubmit)="enviarDados()">
        <input type="text" formControlName = "data">
+       
        <div class="d-flex">
         <mat-form-field class="flex-fill me-3" appearence="fill">
           <mat-label>Nome:</mat-label>

@@ -1,7 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatSnackBar} from '@angular/material/snack-bar';
 
+interface Cliente{
+  id: number,
+  servico: number,
+  cliente: string,
+  contato: string
+}
+
+enum Servico{
+  'Cabelo',
+  'Barba',
+  'Combo'
+}
 
 @Component({
   selector: 'app-root',
@@ -13,14 +26,28 @@ export class AppComponent {
   logado: boolean = true;
   form: FormGroup;
   url: string = 'http://lucasreno.kinghost.net/barbearia';
+  fila: Cliente[] = [];
+  servicos: typeof Servico = Servico;
 
-  constructor(public fb: FormBuilder, public http: HttpClient){
+  constructor(
+    public fb: FormBuilder,
+    public http: HttpClient,
+    private snackBar: MatSnackBar){
   this.form = this.fb.group({
     data: [new Date().toLocaleDateString()],
-    cliente: [''],
-    contato: [''],
-    servico: [''],
+    cliente: ['', Validators.required],
+    contato: ['', Validators.required],
+    servico: ['', Validators.required],
   });
+  this.pegarDados();
+  }
+
+  ngOnInit(){
+    setInterval(
+      () => {
+        this.pegarDados();
+      }
+      ,100);
   }
 
   verificarSenha(event: any){
@@ -31,12 +58,42 @@ export class AppComponent {
     console.log(this.form.value);
     this.http.post<any>(this.url, this.form.value).subscribe(
      (data: any) => {
-        console.log(data);
+        // console.log(data);
+        this.snackBar.open(data,'',{
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000,
+          panelClass: ['green-snackbar'],
+        });
+        this.pegarDados();
+        this.form.reset();
       },
       (error: any) => {
-        console.log(error.error);
+        this.snackBar.open(error.error,'',{
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          duration: 3000,
+          panelClass: ['red-snackbar',]
+        });
       }
      );
     
+  }
+
+  pegarDados(){
+    console.log("Solicitando dados ao cliente");
+    this.http.get<Cliente[]>(this.url).subscribe(
+      (resposta: Cliente[]) => {
+        this.fila = resposta;
+      }
+    );
+  }
+
+  removerFromFila(id:number){
+    this.http.patch<any>(this.url,{id}).subscribe(
+      (resposta:any) => {
+        this.pegarDados();
+      }
+    );
   }
 }
